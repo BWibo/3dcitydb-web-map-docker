@@ -5,17 +5,24 @@ services:
   - docker
 
 env:
-  - version: v1.1.0
+  - webmapclient_version: v1.1.0
+    baseimage_tag: 10
     tag: v1.1.0
-  - version: v1.4.0
+  - webmapclient_version: v1.4.0
+    baseimage_tag: 10
     tag: v1.4.0
-  - version: v1.6.0
+  - webmapclient_version: v1.6.0
+    baseimage_tag: 10
     tag: v1.6.0
-  - version: master
+  - webmapclient_version: master
+    baseimage_tag: 10
     tag: experimental
+  - webmapclient_version: v1.6.0
+    baseimage_tag: 10-alpine
+    tag: v1.6.0-alpine
 
 before_install: 
-  - docker build --build-arg webmapclient_version=${version} -t tumgis/3dcitydb-web-map:${tag} .
+  - docker build --build-arg baseimage_tag=${baseimage_tag} --build-arg webmapclient_webmapclient_version=${webmapclient_version} -t tumgis/3dcitydb-web-map:${tag} .
 
 before_script:
   - docker run --name webcl -d -p 8000:8000 tumgis/3dcitydb-web-map:${tag}
@@ -25,9 +32,9 @@ script:
   - docker logs webcl
   - curl "http://127.0.0.1:8000/3dwebclient/" -s | grep '<title>3DCityDB-Web-Map-Client</title>'
   
-after_success:
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  - docker push tumgis/3dcitydb-web-map:${tag}
+# after_success:
+  # - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  # - docker push tumgis/3dcitydb-web-map:${tag}
   
 notifications:
     slack: tum-gis:Z32lHXJDXaycOn4643NHSXaT
