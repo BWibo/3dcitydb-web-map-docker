@@ -2,24 +2,22 @@
 # compose Docker image tag ----------------------------------------------------
 #   NOTE: This needs to be called before build and deploy
 getTag() {
-temp=""
+  temp=""
 
-# find tag prefix: master -> "", devel -> "devel"
-if [[ "$TRAVIS_BRANCH" == "devel" ]]; then
-  temp="devel-"
-fi
+  # find tag prefix: master -> "", devel -> "devel"
+  if [[ "$TRAVIS_BRANCH" == "devel" ]]; then
+    temp="devel-"
+  fi
 
-os=""
-# determine os debian -> "", alpine -> "alpine"
-if [[ "$dockerfile" == "alpine" ]]; then
-  temp="${temp}alpine-"
-fi
+  os=""
+  # determine os debian -> "", alpine -> "alpine"
+  if [[ "$dockerfile" == "alpine" ]]; then
+    temp="${temp}alpine-"
+  fi
 
-# append tag
-temp="${temp}${tag}"
-
-# set tag variable
-echo "$temp"
+  # append tag
+  temp="${temp}${tag}"
+  echo "$temp"
 }
 
 # compose full image name (image name + tag) ----------------------------------
