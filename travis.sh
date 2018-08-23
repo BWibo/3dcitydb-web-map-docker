@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # compose Docker image tag ----------------------------------------------------
 #   NOTE: This needs to be called before build and deploy
 getTag() {
