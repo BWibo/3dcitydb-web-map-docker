@@ -43,7 +43,8 @@ runContainer() {
 
 # deploy ----------------------------------------------------------------------
 deploy() {
-  if [[ "$TRAVIS_BRANCH" == "master" || "$TRAVIS_BRANCH" == "devel" ]]; then    
+  if [[ "$TRAVIS_BRANCH" == "master" || "$TRAVIS_BRANCH" == "devel" ]]; then
+    echo "$(getImageName)"
     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
     docker push "$(getImageName)"
   fi
