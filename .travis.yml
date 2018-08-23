@@ -46,6 +46,7 @@ env:
       dockerfile: alpine
 
 before_script:
+  - chmod +x ./travis.sh
   - ./travis.sh build
   - ./travis.sh runContainer
 
