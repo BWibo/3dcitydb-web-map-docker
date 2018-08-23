@@ -6,7 +6,7 @@ services:
 
 env:
   global:
-    - repo_name=$DOCKER_USERNAME
+    - repo_name=hans
     - image_name=3dcitydb-web-map
 
   matrix:
