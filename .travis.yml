@@ -22,13 +22,9 @@ env:
 jobs:
   include:
     - stage: build
-      before_install: 
+      script: 
         - docker build --build-arg baseimage_tag=${baseimage_tag} --build-arg webmapclient_webmapclient_version=${webmapclient_version} -t ${repo_name}/${image_name}:${tag} ${dockerfile}
-
-      before_script:
         - docker run --name webcl -d -p 8000:8000 ${repo_name}/${image_name}:${tag}
-
-      script:
         - sleep 3  
         - docker logs webcl
         - curl "http://127.0.0.1:8000/3dwebclient/" -s | grep '<title>${image_name}-Client</title>'
