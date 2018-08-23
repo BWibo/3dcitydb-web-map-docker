@@ -25,7 +25,6 @@ echo "$temp"
 
 # compose full image name (image name + tag) ----------------------------------
 getImageName() {
-  setTag
   echo "${repo_name}/${image_name}:$(getTag)"
 }
 
@@ -38,15 +37,13 @@ build() {
 }
 
 # run Docker container --------------------------------------------------------
-runContainer() {
-  setTag  
+runContainer() {    
   docker run --name webcl -d -p 8000:8000 "$(getImageName)"
 }
 
 # deploy ----------------------------------------------------------------------
 deploy() {
-  if [[ "$TRAVIS_BRANCH" == "master" || "$TRAVIS_BRANCH" == "devel" ]]; then
-    setTag
+  if [[ "$TRAVIS_BRANCH" == "master" || "$TRAVIS_BRANCH" == "devel" ]]; then    
     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
     docker push "$(getImageName)"
   fi
