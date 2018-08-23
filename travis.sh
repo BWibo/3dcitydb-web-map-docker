@@ -14,11 +14,11 @@ fi
 os=""
 # determine os debian -> "", alpine -> "alpine"
 if [[ "$dockerfile" == "alpine" ]]; then
-  temp="${temp}alpine"
+  temp="${temp}alpine-"
 fi
 
 # append tag
-temp="${temp}-${tag}"
+temp="${temp}${tag}"
 
 # set tag variable
 tag="$temp"
@@ -42,6 +42,12 @@ deploy() {
     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
     docker push ${repo_name}/${image_name}:${tag}
   fi
+}
+
+# test ------------------------------------------------------------------------
+test() {
+  setTag
+  echo $tag
 }
 
 # main ------------------------------------------------------------------------
