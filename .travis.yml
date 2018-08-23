@@ -5,23 +5,39 @@ services:
   - docker
 
 env:
-  - webmapclient_version: v1.1.0
-    baseimage_tag: 10
-    tag: v1.1.0
-    dockerfile: .
-  - webmapclient_version: v1.1.0
-    baseimage_tag: 10-alpine
-    tag: v1.1.0-alpine
-    dockerfile: alpine
+  global:
+    - repo_name=bwibo
+    - image_name=3dcitydb-web-map
+
+  matrix:
+    - webmapclient_version: v1.1.0
+      baseimage_tag: 10
+      tag: v1.1.0
+      dockerfile: .
+    - webmapclient_version: v1.1.0
+      baseimage_tag: 10-alpine
+      tag: v1.1.0-alpine
+      dockerfile: alpine
 
 jobs:
   include:
     - stage: build
+      before_install: 
+        - docker build --build-arg baseimage_tag=${baseimage_tag} --build-arg webmapclient_webmapclient_version=${webmapclient_version} -t ${repo_name}/${image_name}:${tag} ${dockerfile}
+
+      before_script:
+        - docker run --name webcl -d -p 8000:8000 ${repo_name}/${image_name}:${tag}
+
       script:
-        - docker build --build-arg baseimage_tag=${baseimage_tag} --build-arg webmapclient_webmapclient_version=${webmapclient_version} -t tumgis/3dcitydb-web-map:${tag} ${dockerfile}
-    - stage: run
+        - sleep 3  
+        - docker logs webcl
+        - curl "http://127.0.0.1:8000/3dwebclient/" -s | grep '<title>${image_name}-Client</title>'
+
+    - stage: deploy
       script:
-        - docker run --name webcl -d -p 8000:8000 tumgis/3dcitydb-web-map:${tag}
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        - docker push ${repo_name}/${image_name}:${tag}
+        
 
 
 # env:
@@ -65,19 +81,19 @@ jobs:
 #       dockerfile: alpine
 
 # before_install: 
-#   - docker build --build-arg baseimage_tag=${baseimage_tag} --build-arg webmapclient_webmapclient_version=${webmapclient_version} -t tumgis/3dcitydb-web-map:${tag} ${dockerfile}
+#   - docker build --build-arg baseimage_tag=${baseimage_tag} --build-arg webmapclient_webmapclient_version=${webmapclient_version} -t ${repo_name}/${image_name}:${tag} ${dockerfile}
 
 # before_script:
-#   - docker run --name webcl -d -p 8000:8000 tumgis/3dcitydb-web-map:${tag}
+#   - docker run --name webcl -d -p 8000:8000 ${repo_name}/${image_name}:${tag}
 
 # script:
 #   - sleep 3  
 #   - docker logs webcl
-#   - curl "http://127.0.0.1:8000/3dwebclient/" -s | grep '<title>3DCityDB-Web-Map-Client</title>'
+#   - curl "http://127.0.0.1:8000/3dwebclient/" -s | grep '<title>${image_name}-Client</title>'
   
 # after_success:
 #   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-#   - docker push tumgis/3dcitydb-web-map:${tag}
+#   - docker push ${repo_name}/${image_name}:${tag}
 
 # notifications:
 #     slack: tum-gis:Z32lHXJDXaycOn4643NHSXaT
