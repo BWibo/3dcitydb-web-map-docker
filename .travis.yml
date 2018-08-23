@@ -46,11 +46,8 @@ env:
       dockerfile: alpine
 
 before_script:
-  - printenv | sort
-  - pwd
-  - chmod +x ./travis.sh
-  - ./travis.sh imageName
   - ./travis.sh build
+  - ./travis.sh runContainer
 
 script:
   - sleep 3  

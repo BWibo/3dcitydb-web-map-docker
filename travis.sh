@@ -2,7 +2,7 @@
 
 # compose Docker image tag ----------------------------------------------------
 #   NOTE: This needs to be called before build and deploy
-setTag() {
+getTag() {
 temp=""
 
 # find tag prefix: master -> "", devel -> "devel"
@@ -20,39 +20,36 @@ fi
 temp="${temp}${tag}"
 
 # set tag variable
-tag="$temp"
+echo "$temp"
 }
 
-# compose image name ----------------------------------------------------------
-imageName() {
+# compose full image name (image name + tag) ----------------------------------
+getImageName() {
   setTag
-  echo ${repo_name}/${image_name}:${tag}
+  echo "${repo_name}/${image_name}:$(getTag)"
 }
 
 # build Docker image ----------------------------------------------------------
 build() {
-
-  setTag
-
   docker build --build-arg baseimage_tag=${baseimage_tag} \
                --build-arg webmapclient_version=${webmapclient_version} \
-               -t ${repo_name}/${image_name}:${tag} \
+               -t "$(getImageName)" \
                ${dockerfile}
 }
 
-# deploy
+# run Docker container --------------------------------------------------------
+runContainer() {
+  setTag  
+  docker run --name webcl -d -p 8000:8000 "$(getImageName)"
+}
+
+# deploy ----------------------------------------------------------------------
 deploy() {
   if [[ "$TRAVIS_BRANCH" == "master" || "$TRAVIS_BRANCH" == "devel" ]]; then
     setTag
     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-    docker push ${repo_name}/${image_name}:${tag}
+    docker push "$(getImageName)"
   fi
-}
-
-# test ------------------------------------------------------------------------
-test() {
-  setTag
-  echo $tag
 }
 
 # main ------------------------------------------------------------------------
