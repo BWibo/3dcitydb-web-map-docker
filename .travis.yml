@@ -10,89 +10,58 @@ env:
     - image_name=3dcitydb-web-map
 
   matrix:
+    # debian versions
     - webmapclient_version: v1.1.0
       baseimage_tag: 10
       tag: v1.1.0
       dockerfile: .
+    - webmapclient_version: v1.4.0
+      baseimage_tag: 10
+      tag: v1.4.0
+      dockerfile: .
+    - webmapclient_version: v1.6.0
+      baseimage_tag: 10
+      tag: v1.6.0
+      dockerfile: .
+    - webmapclient_version: master
+      baseimage_tag: 10
+      tag: experimental
+      dockerfile: .
+    # alpine versions
     - webmapclient_version: v1.1.0
       baseimage_tag: 10-alpine
       tag: v1.1.0-alpine
       dockerfile: alpine
+    - webmapclient_version: v1.4.0
+      baseimage_tag: 10-alpine
+      tag: v1.4.0-alpine
+      dockerfile: alpine
+    - webmapclient_version: v1.6.0
+      baseimage_tag: 10-alpine
+      tag: v1.6.0-alpine
+      dockerfile: alpine
+    - webmapclient_version: master
+      baseimage_tag: 10-alpine
+      tag: experimental-alpine
+      dockerfile: alpine
 
-jobs:
-  include:
-    - stage: build
-      script: 
-        - docker build --build-arg baseimage_tag=${baseimage_tag} --build-arg webmapclient_webmapclient_version=${webmapclient_version} -t ${repo_name}/${image_name}:${tag} ${dockerfile}
-        - docker run --name webcl -d -p 8000:8000 ${repo_name}/${image_name}:${tag}
-        - sleep 3  
-        - docker logs webcl
-        - curl "http://127.0.0.1:8000/3dwebclient/" -s | grep '<title>${image_name}-Client</title>'
+before_install: 
+  - docker build --build-arg baseimage_tag=${baseimage_tag} --build-arg webmapclient_webmapclient_version=${webmapclient_version} -t ${repo_name}/${image_name}:${tag} ${dockerfile}
 
-    - stage: deploy
-      script:
-        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-        - docker push ${repo_name}/${image_name}:${tag}
-        
+before_script:
+  - docker run --name webcl -d -p 8000:8000 ${repo_name}/${image_name}:${tag}
 
-
-# env:
-#   global:
-#     - VARNAME=VALUE
-
-#   matrix:
-#     # debian versions
-#     - webmapclient_version: v1.1.0
-#       baseimage_tag: 10
-#       tag: v1.1.0
-#       dockerfile: .
-#     - webmapclient_version: v1.4.0
-#       baseimage_tag: 10
-#       tag: v1.4.0
-#       dockerfile: .
-#     - webmapclient_version: v1.6.0
-#       baseimage_tag: 10
-#       tag: v1.6.0
-#       dockerfile: .
-#     - webmapclient_version: master
-#       baseimage_tag: 10
-#       tag: experimental
-#       dockerfile: .
-#     # alpine versions
-#     - webmapclient_version: v1.1.0
-#       baseimage_tag: 10-alpine
-#       tag: v1.1.0-alpine
-#       dockerfile: alpine
-#     - webmapclient_version: v1.4.0
-#       baseimage_tag: 10-alpine
-#       tag: v1.4.0-alpine
-#       dockerfile: alpine
-#     - webmapclient_version: v1.6.0
-#       baseimage_tag: 10-alpine
-#       tag: v1.6.0-alpine
-#       dockerfile: alpine
-#     - webmapclient_version: master
-#       baseimage_tag: 10-alpine
-#       tag: experimental-alpine
-#       dockerfile: alpine
-
-# before_install: 
-#   - docker build --build-arg baseimage_tag=${baseimage_tag} --build-arg webmapclient_webmapclient_version=${webmapclient_version} -t ${repo_name}/${image_name}:${tag} ${dockerfile}
-
-# before_script:
-#   - docker run --name webcl -d -p 8000:8000 ${repo_name}/${image_name}:${tag}
-
-# script:
-#   - sleep 3  
-#   - docker logs webcl
-#   - curl "http://127.0.0.1:8000/3dwebclient/" -s | grep '<title>${image_name}-Client</title>'
+script:
+  - sleep 3  
+  - docker logs webcl
+  - curl "http://127.0.0.1:8000/3dwebclient/" -s | grep '<title>${image_name}-Client</title>'
   
-# after_success:
-#   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-#   - docker push ${repo_name}/${image_name}:${tag}
+after_success:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker push ${repo_name}/${image_name}:${tag}
 
-# notifications:
-#     slack: tum-gis:Z32lHXJDXaycOn4643NHSXaT
-#     on_success: change
-#     on_failure: always
-
+notifications:
+    slack: tum-gis:Z32lHXJDXaycOn4643NHSXaT
+    on_success: change
+    on_failure: always
+  
