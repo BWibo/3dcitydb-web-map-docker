@@ -6,7 +6,7 @@ services:
 
 env:
   global:
-    - repo_name=hans
+    - repo_name=bwibo
     - image_name=3dcitydb-web-map
 
   matrix:
@@ -49,7 +49,8 @@ before_script:
   - printenv | sort
   - pwd
   - chmod +x ./travis.sh
-  - set -ex && ./travis.sh build
+  - ./travis.sh imageName
+  - ./travis.sh build
 
 script:
   - sleep 3  

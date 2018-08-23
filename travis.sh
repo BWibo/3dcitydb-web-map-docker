@@ -3,7 +3,6 @@
 # compose Docker image tag ----------------------------------------------------
 #   NOTE: This needs to be called before build and deploy
 setTag() {
-
 temp=""
 
 # find tag prefix: master -> "", devel -> "devel"
@@ -22,6 +21,12 @@ temp="${temp}${tag}"
 
 # set tag variable
 tag="$temp"
+}
+
+# compose image name ----------------------------------------------------------
+imageName() {
+  setTag
+  echo ${repo_name}/${image_name}:${tag}
 }
 
 # build Docker image ----------------------------------------------------------
