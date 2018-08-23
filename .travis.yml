@@ -45,11 +45,8 @@ env:
       tag: experimental-alpine
       dockerfile: alpine
 
-before_install: 
-  - docker build --build-arg baseimage_tag=${baseimage_tag} --build-arg webmapclient_webmapclient_version=${webmapclient_version} -t ${repo_name}/${image_name}:${tag} ${dockerfile}
-
 before_script:
-  - docker run --name webcl -d -p 8000:8000 ${repo_name}/${image_name}:${tag}
+  -   - ./travis.sh build
 
 script:
   - sleep 3  
@@ -57,8 +54,7 @@ script:
   - curl "http://127.0.0.1:8000/3dwebclient/" -s | grep '<title>3DCityDB-Web-Map-Client</title>'
   
 after_success:
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  - docker push ${repo_name}/${image_name}:${tag}
+  - ./travis.sh deploy
 
 notifications:
     slack: tum-gis:Z32lHXJDXaycOn4643NHSXaT
