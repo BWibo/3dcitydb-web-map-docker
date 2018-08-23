@@ -49,7 +49,7 @@ before_script:
   - printenv | sort
   - pwd
   - chmod +x ./travis.sh
-  - ./travis.sh build
+  - set -ex && ./travis.sh build
 
 script:
   - sleep 3  
