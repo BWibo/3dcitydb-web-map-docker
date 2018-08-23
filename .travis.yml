@@ -46,7 +46,8 @@ env:
       dockerfile: alpine
 
 before_script:
-  -   - ./travis.sh build
+  - chmod +x ./travis.sh
+  - ./travis.sh build
 
 script:
   - sleep 3  
