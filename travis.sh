@@ -19,26 +19,29 @@ getTag() {
   fi
 
   # append tag
-  temp="${temp}${tag}"
+  temp="${temp}${1}"
   echo "$temp"
 }
 
 # compose full image name (repo + image name + tag) ---------------------------
 getImageName() {
-  echo "${repo_name}/${image_name}:$(getTag)"
+  echo "${repo_name}/${image_name}:$(getTag ${1})"
 }
 
 # build Docker image ----------------------------------------------------------
 build() {
+  # build image
   docker build --build-arg baseimage_tag=${baseimage_tag} \
-               --build-arg webmapclient_version=${webmapclient_version} \
-               -t "$(getImageName)" \
-               ${dockerfile}
+            --build-arg webmapclient_version=${webmapclient_version} \
+            -t "temp:temp" \
+            ${dockerfile}
+
+
 }
 
 # run Docker container --------------------------------------------------------
 runContainer() {    
-  docker run --name webcl -d -p 8000:8000 "$(getImageName)"
+  docker run --name webcl -d -p 8000:8000 "temp:temp"
 }
 
 # deploy ----------------------------------------------------------------------
@@ -46,10 +49,26 @@ deploy() {
   # deploy if not a pull request and branch is master or devel
   if [[ "$TRAVIS_PULL_REQUEST" == "false" && \
       ( "$TRAVIS_BRANCH" == "master" || "$TRAVIS_BRANCH" == "devel" ) ]]; then
-    echo "$(getImageName)"
-    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-    docker push "$(getImageName)"
+
+      # login to docker hub
+      echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+      # create tags and push to docker hub
+      for str in ${tag//,/ } ; do
+        docker tag "temp:temp" "$(getImageName ${str})"
+        docker push "$(getImageName ${str})"
+      done    
   fi
+}
+
+# cleanup ---------------------------------------------------------------------
+cleanup() {
+  docker rm -fv webcl
+  docker rmi -f "temp:temp"
+  # create tags and remove images  
+  for str in ${tag//,/ } ; do
+    docker rmi -f "$(getImageName ${str})"
+  done
 }
 
 #------------------------------------------------------------------------------

@@ -21,7 +21,7 @@ env:
       dockerfile: .
     - webmapclient_version: v1.6.0
       baseimage_tag: 10
-      tag: v1.6.0
+      tag: v1.6.0,latest
       dockerfile: .
     - webmapclient_version: master
       baseimage_tag: 10
@@ -38,7 +38,7 @@ env:
       dockerfile: alpine
     - webmapclient_version: v1.6.0
       baseimage_tag: 10-alpine
-      tag: v1.6.0
+      tag: v1.6.0,latest
       dockerfile: alpine
     - webmapclient_version: master
       baseimage_tag: 10-alpine
@@ -53,10 +53,13 @@ before_script:
 script:
   - sleep 3  
   - docker logs webcl
-  - curl "http://127.0.0.1:8000/3dwebclient/" -s | grep '<title>3DCityDB-Web-Map-Client</title>'
-  
-after_success:
+  - curl "http://127.0.0.1:8000/3dwebclient/" -s | grep '<title>3DCityDB-Web-Map-Client</title>'  
+
+deploy:
   - ./travis.sh deploy
+
+after_script:
+  - ./travis.sh cleanup
 
 notifications:
     slack: tum-gis:Z32lHXJDXaycOn4643NHSXaT
