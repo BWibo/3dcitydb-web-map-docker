@@ -6,7 +6,7 @@ services:
 
 env:
   global:
-    - repo_name=bwibooooo
+    - repo_name=bwibo
     - image_name=3dcitydb-web-map
 
   matrix:
