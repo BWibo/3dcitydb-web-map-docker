@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # compose Docker image tag ----------------------------------------------------
 #   NOTE: This needs to be called before build and deploy
 getTag() {
@@ -40,8 +39,10 @@ runContainer() {
 }
 
 # deploy ----------------------------------------------------------------------
-deploy() {
-  if [[ "$TRAVIS_BRANCH" == "master" || "$TRAVIS_BRANCH" == "devel" ]]; then
+deploy() {  
+  # deploy if not a pull request and branch is master or devel
+  if [[ "$TRAVIS_PULL_REQUEST" == "false" && \
+      ( "$TRAVIS_BRANCH" == "master" || "$TRAVIS_BRANCH" == "devel" ) ]]; then
     echo "$(getImageName)"
     echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
     docker push "$(getImageName)"
