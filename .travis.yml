@@ -54,8 +54,6 @@ script:
   - sleep 3  
   - docker logs webcl
   - curl "http://127.0.0.1:8000/3dwebclient/" -s | grep '<title>3DCityDB-Web-Map-Client</title>'  
-
-deploy:
   - ./travis.sh deploy
 
 after_script:
